@@ -8,9 +8,80 @@ export default (db) => ({
         try {
             const results = await db.mysqlquery(query); // Ejecuta la consulta usando el método mysqlquery del objeto db
             const totalCount = results.length; // Obtiene el total de registros encontrados
-            return { success: true, status: 200, data: results, totalCount, error: null }; // Devuelve los resultados y el total
+            const HTTPCode = totalCount > 0 ? 200 : 404; // Determina el código HTTP basado en si se encontraron registros
+            return { 
+                success: true, 
+                status: 200, 
+                data: results, 
+                totalCount, 
+                error: null }; // Devuelve los resultados y el total
         }catch (error) {
-            return { success: false, status: 500, data: [], totalCount: 0, error: error.message }; // Devuelve el mensaje de error si ocurre alguno
+            console.log(error)
+            return { 
+                success: false, 
+                status: 500, 
+                data: [], 
+                totalCount: 0, 
+                error: error.message }; // Devuelve el mensaje de error si ocurre alguno
         }
+
+    },
+
+    async findById(id) {
+        let query = `SELECT * FROM tenants WHERE id = '${id}'`; // Consulta SQL para obtener un tenant por ID
+        console.log(query);
+        try {
+            const results = await db.mysqlquery(query); // Ejecuta la consulta usando el método mysqlquery del objeto db
+            const totalCount = results.data.length; // Obtiene el total de registros encontrados
+            const HTTPCode = totalCount > 0 ? 200 : 404; // Determina el código HTTP basado en si se encontraron registros
+            return { 
+                success: true, 
+                status: HTTPCode, 
+                data: results.data, 
+                totalCount, 
+                error: null }; // Devuelve los resultados y el total
+        }catch (error) {
+            return { 
+                success: false, 
+                status: 500, 
+                data: [], 
+                totalCount: 0, 
+                error: error.message }; // Devuelve el mensaje de error si ocurre alguno
+        }
+    },
+    
+    async create(data) {
+        let id = uuidv4(); // Genera un nuevo UUID para el ID del tenant
+        let query = `INSERT INTO tenants (id, name,
+        contact_email, contact_phone) 
+        VALUES ('${id}', '${data.name}',
+        '${data.contact_email}', '${data.contact_phone}');`; // Consulta SQL para insertar un nuevo tenant
+        try{
+            const results = await db.mysqlquery(query); // Ejecuta la consulta usando el método mysqlquery del objeto db
+            const affectedRows = results.data.affectedRows; // Obtiene el número de filas afectadas por la inserción
+            const HTTPCode = affectedRows > 0 ? 201 : 500;
+            return { 
+                success: true, 
+                status: HTTPCode,
+                data: {id: id},
+                totalCount: affectedRows,
+                error: null }; // Devuelve el ID del nuevo tenant y el número de filas afectadas
+        }catch (error) {
+            return { 
+                success: false, 
+                status: 500, 
+                data: {}, 
+                totalCount: 0, 
+                error: error.message }; // Devuelve el mensaje de error si ocurre alguno
+        }
+    },
+
+    async update(id, data) {
+        // Aquí se implementaría la lógica para actualizar un tenant
+        let query = `UPDATE tenants SET 
+        name='${data.name}',
+        contact_email='${data.contact_email}', 
+        contact_phone='${data.contact_phone}' 
+        WHERE id='${id}';`;
     }
 });
