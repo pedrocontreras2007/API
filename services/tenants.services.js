@@ -80,8 +80,51 @@ export default (db) => ({
         // Aquí se implementaría la lógica para actualizar un tenant
         let query = `UPDATE tenants SET 
         name='${data.name}',
-        contact_email='${data.contact_email}', 
-        contact_phone='${data.contact_phone}' 
+        contact_email= '${data.contact_email}', 
+        contact_phone= '${data.contact_phone}' 
         WHERE id='${id}';`;
+        try{
+            const results = await db.mysqlquery(query); // Ejecuta la consulta usando el método mysqlquery del objeto db
+            console.log(results);
+            //TODO: Corregir el código de estado
+            const HTTPCode = results.data.affectedRows > 0 ? 200 : 404;
+            return { 
+                success: true, 
+                status: HTTPCode,
+                data: results,
+                totalCount: 0,
+                error: null }; // Devuelve el ID del nuevo tenant y el número de filas afectadas
+        }catch (error) {
+            return { 
+                success: false, 
+                status: 500, 
+                data: [], 
+                totalCount: 0, 
+                error: error.message }; // Devuelve el mensaje de error si ocurre alguno
+        }
+    },
+
+    async delete(id) {
+        // Aquí se implementaría la lógica para eliminar un tenant
+        let query = `DELETE FROM tenants WHERE id = ${id};`;
+        try{
+            const results = await db.mysqlquery(query); // Ejecuta la consulta usando el método mysqlquery del objeto db
+            console.log(results);
+            //TODO: Corregir el código de estado
+            const HTTPCode = results.length > 0 ? 200 : 404;
+            return { 
+                success: true, 
+                status: HTTPCode,
+                data: results,
+                totalCount: 0,
+                error: null }; // Devuelve el ID del nuevo tenant y el número de filas afectadas
+        }catch (error) {
+            return {
+                success: false, 
+                status: 500, 
+                data: [],
+                totalCount: 0,
+                error: error.message }; // Devuelve el mensaje de error si ocurre alguno
+        }
     }
 });
