@@ -7,12 +7,12 @@ export default (db) => ({
         let query = 'SELECT * FROM tenants'; // Consulta SQL para obtener todos los tenants
         try {
             const results = await db.mysqlquery(query); // Ejecuta la consulta usando el método mysqlquery del objeto db
-            const totalCount = results.length; // Obtiene el total de registros encontrados
+            const totalCount = results.data.length; // Obtiene el total de registros encontrados
             const HTTPCode = totalCount > 0 ? 200 : 404; // Determina el código HTTP basado en si se encontraron registros
             return { 
                 success: true, 
-                status: 200, 
-                data: results, 
+                status: HTTPCode, 
+                data: results.data, 
                 totalCount, 
                 error: null }; // Devuelve los resultados y el total
         }catch (error) {
@@ -51,8 +51,8 @@ export default (db) => ({
     },
     
     async create(data) {
-        let id = uuidv4(); // Genera un nuevo UUID para el ID del tenant
-        let query = `INSERT INTO tenants (id, name,
+        const id = uuidv4(); // Genera un nuevo UUID para el ID del tenant
+        const query = `INSERT INTO tenants (id, name,
         contact_email, contact_phone) 
         VALUES ('${id}', '${data.name}',
         '${data.contact_email}', '${data.contact_phone}');`; // Consulta SQL para insertar un nuevo tenant

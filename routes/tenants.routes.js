@@ -16,7 +16,7 @@ export default(db) => {
         res.status(status).json({ data, message, totalCount, error }); // Devuelve la respuesta en formato JSON
     });
 
-    /** Ruta para obtener un tenant por ID **/
+    /** Ruta para obtener un tenant por ID (un solo registro) **/
     router.get('/:id', async (req, res) => {
         // Aquí se implementaría la lógica para obtener un tenant por su ID
         const qData = await Tenants.findById(req.params.id); // Llama al método para obtener los tenant por ID
@@ -44,18 +44,27 @@ export default(db) => {
     });
 
     /** Ruta para actualizar datos/registro (total) **/
-    router.put('/', (req, res) => {
+    router.put('/:id', async (req, res) => {
         // Aquí se implementaría la lógica para actualizar completamente un tenant
-    });
-
-    /** Ruta para actualizar datos/registro (parcial) **/
-    router.patch('/', (req, res) => {
-        // Aquí se implementaría la lógica para actualizar parcialmente un tenant
+        const qData = await Tenants.update(req.params.id, req.body); // Llama al método para actualizar un tenant
+        let data = qData.data; // Obtiene los datos
+        let status = qData.status; // Obtiene el status de la respuesta
+        let message = qData.message;    // Obtiene el mensaje de la respuesta
+        let totalCount = qData.totalCount; // Obtiene el conteo total de registros
+        let error = qData.error; // Obtiene cualquier error
+        res.status(status).json({ data, message, totalCount, error }); // Devuelve la respuesta en formato JSON 
     });
 
     /** Ruta para eliminar un registro **/
-    router.delete('/', (req, res) => {
+    router.delete('/:id', async (req, res) => {
         // Aquí se implementaría la lógica para eliminar un tenant
+        const qData = await Tenants.delete(req.params.id); // Llama al método para eliminar un tenant
+        let data = qData.data; // Obtiene los datos
+        let status = qData.status;  // Obtiene el status de la respuesta 
+        let message = qData.message;    // Obtiene el mensaje de la respuesta
+        let totalCount = qData.totalCount; // Obtiene el conteo total de registros
+        let error = qData.error; // Obtiene cualquier error
+        res.status(status).json({ data, message, totalCount, error }); // Devuelve la respuesta en formato JSON
     });
 
     return router; // Retorna el router configurado
