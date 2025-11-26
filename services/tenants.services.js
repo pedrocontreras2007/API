@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid'; // Importa la función para generar UUIDs 
+/*import { v4 as uuidv4 } from 'uuid'; // Importa la función para generar UUIDs 
 
 // Exporta una función que recibe la instancia de la base de datos
 export default (db) => ({
@@ -127,4 +127,4 @@ export default (db) => ({
                 error: error.message }; // Devuelve el mensaje de error si ocurre alguno
         }
     }
-});
+});*/

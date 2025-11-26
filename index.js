@@ -6,7 +6,11 @@ import bodyParser from "body-parser";
 //Importamos el middleware de la base de datos
 import DB from "./middleware/db.js";
 
-import tenantRouterFactory from "./routes/tenants.routes.js";
+import harvestRouterFactory from "./routes/harvest.routes.js";
+import inventoryRouterFactory from "./routes/inventory.routes.js";
+import lossesRouterFactory from "./routes/losses.routes.js";
+
+//import tenantRouterFactory from "./routes/tenants.routes.js";
 
 dotenv.config(); // Carga las variables de entorno desde el archivo .env
 
@@ -34,9 +38,20 @@ const initServer = () => {
         credentials: true
     })); // Habilita CORS para permitir solicitudes desde otros dominios
    
-    const tenantRouter = tenantRouterFactory(db); // Crea el router para las rutas de tenants, pasando la instancia de la base de datos
+    const harvestRouter = harvestRouterFactory(db);
+    app.use("/api/harvests", harvestRouter);
 
-    app.use("/tenants", tenantRouter); // Usa el router de tenants para las rutas que comienzan con /tenants
+    const inventoryRouter = inventoryRouterFactory(db);
+    app.use("/api/inventory", inventoryRouter);
+
+    const lossesRouter = lossesRouterFactory(db);
+    app.use("/api/losses", lossesRouter);
+
+    //ESTO DE TENANTS ES DE LA API PARA EL TPV 
+    //const tenantRouter = tenantRouterFactory(db); // Crea el router para las rutas de tenants, pasando la instancia de la base de datos
+
+    //app.use("/tenants", tenantRouter); // Usa el router de tenants para las rutas que comienzan con /tenants
+    
     /* Configuramos una ruta para los propietarios*/
     app.get("/", (req, res) => {
         res.status(200).json({ message: "API REST funcionando correctamente" });

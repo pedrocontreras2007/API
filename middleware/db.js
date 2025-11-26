@@ -1,36 +1,49 @@
-import mysql from 'mysql2/promise'; // Importa el módulo mysql2 en modo promesa
+import mysql from 'mysql2/promise';
 
-// Define la clase DB para manejar la conexión y consultas a MySQL
 export default class DB {
     constructor() {
-        this.pool = null; // Inicializa el pool de conexiones como null
+        this.pool = null;
     }
 
-    // Método para establecer los datos de conexión y crear el pool
-    setDataConnection(data){
-        this.dataConnection = data; // Guarda los datos de conexión
-        this.pool = mysql.createPool({
-            ...this.dataConnection, // Expande los datos de conexión
-            waitForConnections: true, // Espera si no hay conexiones disponibles
-            connectionLimit: 10, // Límite máximo de conexiones simultáneas
-            queueLimit: 0, // Sin límite de cola de espera
-            multipleStatements: true // Permite ejecutar múltiples sentencias SQL
-        });
-    }
-
-    // Método para ejecutar una consulta SQL
-    async mysqlquery(query) {
-        const connection = await this.pool.getConnection(); // Obtiene una conexión del pool
+    // Configura la conexión usando los datos que le pases (vienen del .env)
+    setDataConnection(data) {
+        this.dataConnection = data;
         try {
-            const qSQL = connection.format(query); // Formatea la consulta SQL
-            const [results] = await connection.query(qSQL); // Ejecuta la consulta y obtiene los resultados
-            return {success: true, data: results}; // Devuelve los resultados si todo sale bien
-        }catch (error) {
-            return {success: false, error: error.message}; // Devuelve el error si ocurre alguno
-        }finally{
-            if(connection){
-                connection.release(); // Libera la conexión de vuelta al pool
-            } 
+            this.pool = mysql.createPool({
+                host: data.host,
+                user: data.user,
+                password: data.password,
+                database: data.database,
+                port: data.port,
+                waitForConnections: true,
+                connectionLimit: 10,
+                queueLimit: 0,
+                multipleStatements: true // Útil si quieres ejecutar varios scripts a la vez
+            });
+            console.log(`✅ Configuración de Pool de conexión lista para: ${data.database}`);
+        } catch (error) {
+            console.error("❌ Error creando el pool de conexión:", error.message);
+        }
+    }
+
+    // Ejecuta consultas SQL
+    async mysqlquery(query) {
+        let connection;
+        try {
+            // Pedimos una conexión al pool
+            connection = await this.pool.getConnection();
+            
+            // Ejecutamos la consulta
+            const [results] = await connection.query(query);
+            
+            return { success: true, data: results };
+        } catch (error) {
+            console.error("❌ Error en consulta SQL:", error.message);
+            console.error("Query fallida:", query); // Útil para depurar
+            return { success: false, error: error.message };
+        } finally {
+            // ¡Crucial! Siempre liberar la conexión para que otros puedan usarla
+            if (connection) connection.release();
         }
     }
 }
