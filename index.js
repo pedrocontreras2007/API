@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 import express from "express";
 import http from "http";
 import cors from "cors";
-import bodyParser from "body-parser";
 //Importamos el middleware de la base de datos
 import DB from "./middleware/db.js";
 
@@ -27,15 +26,24 @@ const initServer = () => {
     }
     db.setDataConnection(dConnection); // Configura la conexión a la base de datos usando las variables de entorno
     
-    app.use(bodyParser.json()); // Middleware para parsear el cuerpo de las solicitudes como JSON
     app.use(express.json()); // Middleware para parsear el cuerpo de las solicitudes como JSON
     app.use(express.urlencoded({ extended: true })); // Middleware para parsear cuerpos de solicitudes con URL-encoded
     
+    const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:4200')
+        .split(',')
+        .map(origin => origin.trim())
+        .filter(Boolean);
+
     app.use(cors({
-    origin: 'http://localhost:4200',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // <--- Agregados PUT y DELETE
-    allowHeaders: ['Content-Type', 'Authorizations', 'X-Requested-With', 'Accept', 'Origin'],
-    credentials: true
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+            return callback(new Error(`Origen no permitido: ${origin}`));
+        },
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+        credentials: true
     })); // Habilita CORS para permitir solicitudes desde otros dominios
    
     const harvestRouter = harvestRouterFactory(db);
@@ -57,8 +65,9 @@ const initServer = () => {
         res.status(200).json({ message: "API REST funcionando correctamente" });
     });
 
-    server.listen(process.env.APP_PORT, () => {
-        console.log("Servidor funcionando en el puerto " + process.env.APP_PORT);
+    const port = Number(process.env.APP_PORT) || 3000;
+    server.listen(port, () => {
+        console.log("Servidor funcionando en el puerto " + port);
     });
 }
 initServer(); // Inicia el servidor

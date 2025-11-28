@@ -27,14 +27,14 @@ export default class DB {
     }
 
     // Ejecuta consultas SQL
-    async mysqlquery(query) {
+    async mysqlquery(query, values = []) {
         let connection;
         try {
             // Pedimos una conexión al pool
             connection = await this.pool.getConnection();
             
             // Ejecutamos la consulta
-            const [results] = await connection.query(query);
+            const [results] = await connection.execute(query, values);
             
             return { success: true, data: results };
         } catch (error) {

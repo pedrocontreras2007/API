@@ -18,6 +18,12 @@ export default (db) => {
         res.status(response.status).json(response);
     });
 
+    // PUT: Actualizar registro existente
+    router.put('/:id', async (req, res) => {
+        const response = await service.update(req.params.id, req.body);
+        res.status(response.status).json(response);
+    });
+
     // DELETE: Borrar registro por ID
     router.delete('/:id', async (req, res) => {
         const response = await service.delete(req.params.id);
