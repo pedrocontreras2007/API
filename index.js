@@ -32,10 +32,10 @@ const initServer = () => {
     app.use(express.urlencoded({ extended: true })); // Middleware para parsear cuerpos de solicitudes con URL-encoded
     
     app.use(cors({
-        origin: '*',
-        methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
-        allowHeaders: ['Content-Type', 'Authorizations', 'X-Requested-With', 'Accept', 'Origin'],
-        credentials: true
+    origin: 'http://localhost:4200',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // <--- Agregados PUT y DELETE
+    allowHeaders: ['Content-Type', 'Authorizations', 'X-Requested-With', 'Accept', 'Origin'],
+    credentials: true
     })); // Habilita CORS para permitir solicitudes desde otros dominios
    
     const harvestRouter = harvestRouterFactory(db);
